@@ -79,11 +79,6 @@
       <Project>{b5869faa-c1d6-4b34-8278-aa846fd0729d}</Project>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\RealWorlds.ExcelHouganshi.TypeProvider.Npoi\RealWorlds.ExcelHouganshi.TypeProvider.Npoi.fsproj">
-      <Name>RealWorlds.ExcelHouganshi.TypeProvider.Npoi</Name>
-      <Project>{039bc70b-d840-4da2-8b6e-93947631064f}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <Reference Include="System.Web" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

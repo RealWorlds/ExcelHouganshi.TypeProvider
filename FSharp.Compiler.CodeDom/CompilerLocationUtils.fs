@@ -183,11 +183,16 @@ module internal FSharpEnvironment =
     //     - default location of fsi.exe in FSharp.VS.FSI.dll
     //     - default location of fsc.exe in FSharp.Compiler.CodeDom.dll
     let BinFolderOfDefaultFSharpCompiler =
+        let tryDirPath path =
+            if Directory.Exists(path) then Some path
+            else None
         // Check for an app.config setting to redirect the default compiler location
         // Like fsharp-compiler-location
         try 
             Option.choice [
               yield fun () -> tryAppConfig "fsharp-compiler-location"
+              yield fun () -> tryDirPath @"C:\Program Files (x86)\Microsoft SDKs\F#\3.0\Framework\v4.0"
+              yield fun () -> tryDirPath @"C:\Program Files\Microsoft SDKs\F#\3.0\Framework\v4.0"
               // Note: If the keys below change, be sure to update code in:
               // Property pages (ApplicationPropPage.vb)
               let key20 = @"Software\Microsoft\.NETFramework\AssemblyFolders\Microsoft.FSharp-" + FSharpTeamVersionNumber 

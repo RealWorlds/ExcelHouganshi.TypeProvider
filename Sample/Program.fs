@@ -7,7 +7,7 @@ type MyHouganshi = Houganshi<"Def.fs">
 
 [<EntryPoint>]
 let main argv =
-  let x = MyHouganshi.LoadByNpoi("sample.xls")
+  let x = MyHouganshi("sample.xls", NPOI.NpoiBook.Load)
   printfn "%A" x.Title
   printfn "%A" x.SubTitle
   0 // 整数の終了コードを返します

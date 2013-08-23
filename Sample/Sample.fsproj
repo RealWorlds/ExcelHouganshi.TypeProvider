@@ -57,7 +57,7 @@
       <HintPath>..\RealWorlds.ExcelHouganshi.TypeProvider\bin\Debug\RealWorlds.ExcelHouganshi.TypeProvider.Data.dll</HintPath>
     </Reference>
     <Reference Include="RealWorlds.ExcelHouganshi.TypeProvider.Npoi">
-      <HintPath>..\RealWorlds.ExcelHouganshi.TypeProvider\bin\Debug\RealWorlds.ExcelHouganshi.TypeProvider.Npoi.dll</HintPath>
+      <HintPath>..\RealWorlds.ExcelHouganshi.TypeProvider.Npoi\bin\Debug\RealWorlds.ExcelHouganshi.TypeProvider.Npoi.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

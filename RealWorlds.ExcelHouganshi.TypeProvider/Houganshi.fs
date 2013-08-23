@@ -65,19 +65,6 @@ module Impl =
     )
     typ
 
-  let addFactoryMethod (typ: ProvidedTypeDefinition) =
-    typ.AddMember(
-      ProvidedMethod(
-        "LoadByNpoi",
-        [ProvidedParameter("path", typeof<string>)],
-        //typeof<ExcelFile>,
-        typ,
-        IsStaticMethod = true,
-        InvokeCode = function | [pathExpr] -> <@@ ExcelFile(NPOI.NpoiBook.Load(%%pathExpr)) @@> | _ -> failwith "oops!"
-      )
-    )
-    typ
-
   let addMember (typ: ProvidedTypeDefinition) = function
   | FieldDefinition (name, ({ Type = fieldType; Sheet = sheet; Address = address } as fieldDef)) ->
       let prop = ProvidedProperty(name, typ)
@@ -123,7 +110,6 @@ type Houganshi (config: TypeProviderConfig) as this =
             let typ =
               ProvidedTypeDefinition(asm, ns, typeName, Some typeof<ExcelFile>)
               |> addCtor
-              |> addFactoryMethod
               |> addMembers memberDefs
             typ
         | _ -> failwith "Invalid parameter"
