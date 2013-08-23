@@ -99,7 +99,7 @@ type Houganshi (config: TypeProviderConfig) as this =
 
   let asm = Assembly.GetExecutingAssembly()
 
-  let typ = ProvidedTypeDefinition(asm, ns, "Houganshi", Some typeof<obj>)
+  let typ = ProvidedTypeDefinition(asm, ns, "Houganshi", Some typeof<obj>, HideObjectMethods = true)
   let tmpDir = createTempDir config.TemporaryFolder
   let dataDll = config.ReferencedAssemblies |> Array.find (fun asm -> Path.GetFileName(asm) = ns + ".Data.dll")
 
@@ -112,7 +112,7 @@ type Houganshi (config: TypeProviderConfig) as this =
             let memberDefs = compileDefinition tmpDir dataDll definitionFilePath
 
             let typ =
-              ProvidedTypeDefinition(asm, ns, typeName, Some typeof<ExcelFile>)
+              ProvidedTypeDefinition(asm, ns, typeName, Some typeof<ExcelFile>, HideObjectMethods = true)
               |> addCtor memberDefs
               |> addMembers memberDefs
             typ
