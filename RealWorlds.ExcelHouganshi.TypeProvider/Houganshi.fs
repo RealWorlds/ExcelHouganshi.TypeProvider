@@ -67,11 +67,11 @@ module Impl =
 
   let addMember (typ: ProvidedTypeDefinition) = function
   | FieldDefinition (name, ({ Type = fieldType; Sheet = sheet; Address = address } as fieldDef)) ->
-      let prop = ProvidedProperty(name, typ)
-      let typeName =
+      let fieldType, typeName =
         match fieldType with
-        | StringField -> "string"
-        | IntField -> "int"
+        | StringField -> typeof<string>, "string"
+        | IntField -> typeof<int>, "int"
+      let prop = ProvidedProperty(name, fieldType)
       prop.GetterCode <- fun args ->
         <@@
           let this = %%args.[0] : ExcelFile
