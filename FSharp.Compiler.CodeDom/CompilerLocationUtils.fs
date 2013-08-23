@@ -5,6 +5,7 @@ open System.Configuration
 open System.Reflection
 open Microsoft.Win32
 open System.Runtime.InteropServices
+open Util
 
 #nowarn "44" // ConfigurationSettings is obsolete but the new stuff is horribly complicated. 
 
@@ -185,37 +186,25 @@ module internal FSharpEnvironment =
         // Check for an app.config setting to redirect the default compiler location
         // Like fsharp-compiler-location
         try 
-            let result = tryAppConfig "fsharp-compiler-location"
-            match result with 
-            | Some _ ->  result 
-            | None -> 
-
-                // Note: If the keys below change, be sure to update code in:
-                // Property pages (ApplicationPropPage.vb)
-
-                let key20 = @"Software\Microsoft\.NETFramework\AssemblyFolders\Microsoft.FSharp-" + FSharpTeamVersionNumber 
-                let key40 = @"Software\Microsoft\FSharp\2.0\Runtime\v4.0"
-                let key1,key2 = 
-                    match FSharpCoreLibRunningVersion with 
-                    | None -> key20,key40 
-                    | Some v -> if v.Length > 1 && v.[0] <= '3' then key20,key40 else key40,key20
-                
-                let result = tryRegKey key1
-                match result with 
-                | Some _ ->  result 
-                | None -> 
-                    let result =  tryRegKey key2
-                    match result with 
-                    | Some _ ->  result 
-                    | None -> 
-
-            // This was failing on rolling build for staging because the prototype compiler doesn't have the key. Disable there.
-            #if FX_ATLEAST_40_COMPILER_LOCATION
-                        System.Diagnostics.Debug.Assert(result<>None, sprintf "Could not find location of compiler at '%s' or '%s'" key1 key2)
-            #endif                                
-                          
-                            // For the prototype compiler, we can just use the current domain
-                        tryCurrentDomain()
+            Option.choice [
+              yield fun () -> tryAppConfig "fsharp-compiler-location"
+              // Note: If the keys below change, be sure to update code in:
+              // Property pages (ApplicationPropPage.vb)
+              let key20 = @"Software\Microsoft\.NETFramework\AssemblyFolders\Microsoft.FSharp-" + FSharpTeamVersionNumber 
+              let key40 = @"Software\Microsoft\FSharp\2.0\Runtime\v4.0"
+              let key1,key2 = 
+                  match FSharpCoreLibRunningVersion with 
+                  | None -> key20,key40 
+                  | Some v -> if v.Length > 1 && v.[0] <= '3' then key20,key40 else key40,key20
+              yield fun () -> tryRegKey key1
+              yield fun () -> tryRegKey key2
+              // This was failing on rolling build for staging because the prototype compiler doesn't have the key. Disable there.
+              #if FX_ATLEAST_40_COMPILER_LOCATION
+              System.Diagnostics.Debug.Assert(result<>None, sprintf "Could not find location of compiler at '%s' or '%s'" key1 key2)
+              #endif                                
+              // For the prototype compiler, we can just use the current domain
+              yield fun () -> tryCurrentDomain()
+            ]
         with e -> 
             System.Diagnostics.Debug.Assert(false, "Error while determining default location of F# compiler")
             None

@@ -44,7 +44,6 @@
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <ItemGroup>
     <Compile Include="ProvidedTypes.fs" />
-    <Compile Include="Util.fs" />
     <Compile Include="FSharpCodeCompiler.fs" />
     <Compile Include="ExcelFile.fs" />
     <Compile Include="Houganshi.fs" />
@@ -52,6 +51,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Util\Util.fsproj">
+      <Name>Util</Name>
+      <Project>{5947f60b-0923-476b-833e-5205322f2203}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <Reference Include="Ionic.Zip, Version=1.9.1.5, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c">
       <Private>True</Private>
     </Reference>

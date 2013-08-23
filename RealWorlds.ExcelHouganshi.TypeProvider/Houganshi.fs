@@ -6,6 +6,7 @@ open System.Reflection
 
 open Microsoft.FSharp.Core.CompilerServices
 open Samples.FSharp.ProvidedTypes
+open Util
 
 open RealWorlds.ExcelHouganshi.TypeProvider.Data
 open RealWorlds.ExcelHouganshi.TypeProvider.FSharpCodeCompiler
