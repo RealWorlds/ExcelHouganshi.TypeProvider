@@ -19,20 +19,20 @@ module Impl =
       Directory.CreateDirectory(tmpDir) |> ignore
     tmpDir
 
-  let compileIfNeed tmpDir definitionFilePath =
+  let compileIfNeed tmpDir dataDll definitionFilePath =
     let src = File.ReadAllText(definitionFilePath)
     let sha1 = System.Web.Security.FormsAuthentication.HashPasswordForStoringInConfigFile(src, "sha1")
     let outputFilePath = Path.Combine(tmpDir, sha1 + ".dll")
     if File.Exists(outputFilePath) then
       Assembly.LoadFrom(outputFilePath).GetTypes()
     else
-      let refAsms = ["RealWorlds.ExcelHouganshi.TypeProvider.Data.dll"]
+      let refAsms = [dataDll]
       match FSharpCodeCompiler.compile outputFilePath refAsms src with
       | Success types -> types
       | Failure errors -> failwithf "%A" errors
 
-  let compileDefinition tmpDir definitionFilePath =
-    let types = compileIfNeed tmpDir definitionFilePath
+  let compileDefinition tmpDir dataDll definitionFilePath =
+    let types = compileIfNeed tmpDir dataDll definitionFilePath
     let definition =
       let isHouganshiDefinition (m: MemberInfo) =
         m.GetCustomAttributes<HouganshiDefinition>()
@@ -109,6 +109,7 @@ type Houganshi (config: TypeProviderConfig) as this =
 
   let typ = ProvidedTypeDefinition(asm, ns, "Houganshi", Some typeof<obj>)
   let tmpDir = createTempDir config.TemporaryFolder
+  let dataDll = config.ReferencedAssemblies |> Array.find (fun asm -> Path.GetFileName(asm) = ns + ".Data.dll")
 
   do typ.DefineStaticParameters(
       [ProvidedStaticParameter("definitionFilePath", typeof<string>)],
@@ -116,7 +117,7 @@ type Houganshi (config: TypeProviderConfig) as this =
         match parameters with
         | [| :? string as definitionFilePath |] ->
             let definitionFilePath = Path.GetFullPath(Path.Combine(config.ResolutionFolder, definitionFilePath))
-            let memberDefs = compileDefinition tmpDir definitionFilePath
+            let memberDefs = compileDefinition tmpDir dataDll definitionFilePath
 
             let typ =
               ProvidedTypeDefinition(asm, ns, typeName, Some typeof<ExcelFile>)
