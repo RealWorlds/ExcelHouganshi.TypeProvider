@@ -6,12 +6,12 @@ open RealWorlds.ExcelHouganshi.TypeProvider.Data
 let myHouganshi =
   [
     Define.field "Title" {
-      Type = typeof<string>
+      Type = StringField
       Sheet = "Sheet1"
       Address = "A1"
     }
     Define.field "SubTitle" {
-      Type = typeof<string>
+      Type = StringField
       Sheet = "Sheet1"
       Address = "A2"
     }

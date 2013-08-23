@@ -56,7 +56,7 @@ module Impl =
     | Some v -> v :?> Definition list
     | None -> failwithf "%s has no %s" definitionFilePath (typeof<HouganshiDefinition>.Name)
 
-  let addCtor (typ: ProvidedTypeDefinition) =
+  let addCtor memberDefs (typ: ProvidedTypeDefinition) =
     typ.AddMember(
       ProvidedConstructor(
         [ProvidedParameter("path", typeof<string>); ProvidedParameter("loader", typeof<string -> ExcelBook>)],
@@ -68,11 +68,15 @@ module Impl =
   let addMember (typ: ProvidedTypeDefinition) = function
   | FieldDefinition (name, ({ Type = fieldType; Sheet = sheet; Address = address } as fieldDef)) ->
       let prop = ProvidedProperty(name, typ)
+      let typeName =
+        match fieldType with
+        | StringField -> "string"
+        | IntField -> "int"
       prop.GetterCode <- fun args ->
         <@@
           let this = %%args.[0] : ExcelFile
           this.RawOp(fun book ->
-            this.RawRead(book.GetSheet(sheet).GetCell(ExcelAddress.ofA1Format address), fieldType)
+            this.RawRead(book.GetSheet(sheet).GetCell(ExcelAddress.ofA1Format address), typeName)
           )
         @@>
       prop.SetterCode <- fun args ->
@@ -80,7 +84,7 @@ module Impl =
           let this = %%args.[0] : ExcelFile
           let value = %%args.[1]
           this.RawOp(fun book ->
-            this.RawWrite(book.GetSheet(sheet).GetCell(ExcelAddress.ofA1Format address), value, fieldType)
+            this.RawWrite(book.GetSheet(sheet).GetCell(ExcelAddress.ofA1Format address), value, typeName)
           )
         @@>
       typ.AddMember(prop)
@@ -109,7 +113,7 @@ type Houganshi (config: TypeProviderConfig) as this =
 
             let typ =
               ProvidedTypeDefinition(asm, ns, typeName, Some typeof<ExcelFile>)
-              |> addCtor
+              |> addCtor memberDefs
               |> addMembers memberDefs
             typ
         | _ -> failwith "Invalid parameter"

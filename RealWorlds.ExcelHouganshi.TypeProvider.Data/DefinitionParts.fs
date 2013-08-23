@@ -1,9 +1,9 @@
 ﻿namespace RealWorlds.ExcelHouganshi.TypeProvider.Data
 
-open System
+type FieldType = StringField | IntField
 
 type FieldDefinition = {
-  Type: Type
+  Type: FieldType
   Sheet: string
   Address: string
 }

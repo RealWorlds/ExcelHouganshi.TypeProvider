@@ -1,24 +1,29 @@
 ﻿namespace RealWorlds.ExcelHouganshi.TypeProvider
 
-open System
-
 open RealWorlds.ExcelHouganshi.TypeProvider.Data
 
 type ExcelFile (book: ExcelBook) =
   member this.RawOp(f) = f book
-  member this.RawRead(cell: ExcelCell, typ: Type): obj =
+  member this.RawRead(cell: ExcelCell, typeStr): obj =
     let value = cell.Value
-    if typ = typeof<string> then
-      match value with
-      | Blank -> ""
-      | Text text -> text
-      | Numeric (Int i) -> string i
-      |> box
-    else
-      failwithf "%s isn't supported yet." typ.Name
-  member this.RawWrite(cell: ExcelCell, obj: obj, typ: Type) =
+    match typeStr with
+    | "string" ->
+        match value with
+        | Blank -> ""
+        | Text text -> text
+        | Numeric (Int i) -> string i
+        |> box
+    | "int" ->
+        match value with
+        | Blank -> 0
+        | Text text -> int text
+        | Numeric (Int i) -> i
+        |> box
+    | other -> failwithf "%s isn't supported yet." other
+
+  member this.RawWrite(cell: ExcelCell, obj: obj, typeStr) =
     cell.Value <-
-      if typ = typeof<string> then
-        Text (obj :?> string)
-      else
-        failwithf "%s isn't supported yet." typ.Name
+      match typeStr with
+      | "string" -> Text (obj :?> string)
+      | "int" -> Numeric (Int (obj :?> int))
+      | other -> failwithf "%s isn't supported yet." other
