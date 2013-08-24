@@ -47,3 +47,6 @@ type NpoiBook private (book: NBook, path: string) =
       match book.GetSheet(sheetName) with
       | null -> failwith "This book does not have sheet(%s). path: %s" sheetName path
       | sheet -> NpoiSheet.Create(sheet)
+    member this.Save() =
+      use fs = new FileStream(path, FileMode.Open, FileAccess.Write)
+      book.Write(fs)

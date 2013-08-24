@@ -36,6 +36,7 @@ type ExcelSheet =
 
 type ExcelBook =
   abstract member GetSheet: string -> ExcelSheet
+  abstract member Save: unit -> unit
 
 [<AutoOpen>]
 module Ext =

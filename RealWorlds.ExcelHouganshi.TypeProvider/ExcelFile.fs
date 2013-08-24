@@ -3,6 +3,7 @@
 open RealWorlds.ExcelHouganshi.TypeProvider.Data
 
 type ExcelFile (book: ExcelBook) =
+  member this.Save() = book.Save()
   member this.RawOp(f) = f book
   member this.RawRead(cell: ExcelCell, typeStr): obj =
     let value = cell.Value

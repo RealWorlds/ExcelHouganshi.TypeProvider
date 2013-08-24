@@ -10,4 +10,8 @@ let main argv =
   let x = MyHouganshi("sample.xls", NPOI.NpoiBook.Load)
   printfn "%A" x.Title
   printfn "%A" x.SubTitle
+  x.SubTitle <- "hoge"
+  printfn "%A" x.Title
+  printfn "%A" x.SubTitle
+  x.Save()
   0 // 整数の終了コードを返します

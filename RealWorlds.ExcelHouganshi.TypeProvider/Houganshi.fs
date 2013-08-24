@@ -8,6 +8,8 @@ open Microsoft.FSharp.Core.CompilerServices
 open Samples.FSharp.ProvidedTypes
 open Util
 
+open Microsoft.FSharp.Quotations
+
 open RealWorlds.ExcelHouganshi.TypeProvider.Data
 open RealWorlds.ExcelHouganshi.TypeProvider.FSharpCodeCompiler
 
@@ -67,11 +69,11 @@ module Impl =
 
   let addMember (typ: ProvidedTypeDefinition) = function
   | FieldDefinition (name, ({ Type = fieldType; Sheet = sheet; Address = address } as fieldDef)) ->
-      let fieldType, typeName =
+      let ft, typeName =
         match fieldType with
         | StringField -> typeof<string>, "string"
         | IntField -> typeof<int>, "int"
-      let prop = ProvidedProperty(name, fieldType)
+      let prop = ProvidedProperty(name, ft)
       prop.GetterCode <- fun args ->
         <@@
           let this = %%args.[0] : ExcelFile
@@ -79,14 +81,37 @@ module Impl =
             this.RawRead(book.GetSheet(sheet).GetCell(ExcelAddress.ofA1Format address), typeName)
           )
         @@>
+      let rawOp = typeof<ExcelFile>.GetMethod("RawOp").MakeGenericMethod([| typeof<unit> |])
+      let rawWrite = typeof<ExcelFile>.GetMethod("RawWrite")
+      let getSheet = typeof<ExcelBook>.GetMethod("GetSheet")
+      let getCell = typeof<ExcelSheet>.GetMethod("GetCell")
       prop.SetterCode <- fun args ->
-        <@@
+        let thisV = Var("this", typeof<ExcelFile>)
+        let valueV = Var("value", ft)
+        let bookV = Var("book", typeof<ExcelBook>)
+        let thisExpr = Expr.Var(thisV)
+        let valueExpr = Expr.Var(valueV)
+        let bookExpr = Expr.Var(bookV)
+        // 型指定のスプライスができないので、式木を手で構築する
+        (*
           let this = %%args.[0] : ExcelFile
-          let value = %%args.[1]
+          let value = %%args.[1] : %%ft <ここが書けない>
           this.RawOp(fun book ->
             this.RawWrite(book.GetSheet(sheet).GetCell(ExcelAddress.ofA1Format address), value, typeName)
           )
-        @@>
+        *)
+        Expr.Let(thisV, args.[0], 
+          Expr.Let(valueV, args.[1],
+            Expr.Call(thisExpr, rawOp,
+              [
+                Expr.Lambda(
+                  bookV,
+                  Expr.Call(thisExpr, rawWrite,
+                    [
+                      <@@ (%%bookExpr: ExcelBook).GetSheet(sheet).GetCell(ExcelAddress.ofA1Format address) @@>;
+                      valueExpr;
+                      <@@ typeName @@> ]))
+              ])))
       typ.AddMember(prop)
 
   let addMembers memberDefs (typ: ProvidedTypeDefinition) =
