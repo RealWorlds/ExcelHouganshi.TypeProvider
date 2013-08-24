@@ -14,4 +14,5 @@ let main argv =
   printfn "%A" x.Title
   printfn "%A" x.SubTitle
   x.Save()
+  printfn "%A" x.Hoge
   0 // 整数の終了コードを返します

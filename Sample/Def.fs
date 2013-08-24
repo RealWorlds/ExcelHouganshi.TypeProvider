@@ -15,4 +15,9 @@ let myHouganshi =
       Sheet = "Sheet1"
       Address = "A2"
     }
+    Define.field "Hoge" {
+      Type = IntField
+      Sheet = "Sheet1"
+      Address = "A3"
+    }
   ]
