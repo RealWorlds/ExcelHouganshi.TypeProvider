@@ -30,10 +30,10 @@ type NpoiSheet private (sheet: NSheet) =
   interface ExcelSheet with
     member this.GetCell { Row = r; Column = c } =
       match sheet.GetRow(r) with
-      | null -> failwith "This sheet(%s) does not have row(%d)." sheet.SheetName r
+      | null -> failwithf "This sheet(%s) does not have row(%d)." sheet.SheetName r
       | row ->
           match row.GetCell(c) with
-          | null -> failwith "This row(%d) of sheet(%s) does not have column(%d)." r sheet.SheetName c
+          | null -> failwithf "This row(%d) of sheet(%s) does not have column(%d)." r sheet.SheetName c
           | cell -> NpoiCell.Create(cell)
 
 open System.IO
@@ -45,7 +45,7 @@ type NpoiBook private (book: NBook, path: string) =
   interface ExcelBook with
     member this.GetSheet(sheetName) =
       match book.GetSheet(sheetName) with
-      | null -> failwith "This book does not have sheet(%s). path: %s" sheetName path
+      | null -> failwithf "This book does not have sheet(%s). path: %s" sheetName path
       | sheet -> NpoiSheet.Create(sheet)
     member this.Save() =
       use fs = new FileStream(path, FileMode.Open, FileAccess.Write)
